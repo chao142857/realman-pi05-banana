@@ -63,4 +63,4 @@ This public repository shares the **demo and experiment documentation**; raw dem
 
 ## Acknowledgements
 
-Built on [Physical Intelligence's OpenPI](https://github.com/Physical-Intelligence/openpi) and [Hugging Face LeRobot](https://github.com/huggingface/lerobot). Thanks to the lab members who developed and supported the RealMan platform, teleoperation, data collection, and robot-control infrastructure.
+Built on [Physical Intelligence's OpenPI](https://github.com/Physical-Intelligence/openpi) and [Hugging Face LeRobot](https://github.com/huggingface/lerobot). Thanks to the lab members who developed and supported the RealMan platform, teleoperation, data collection.
