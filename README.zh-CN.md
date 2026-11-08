@@ -63,4 +63,4 @@ flowchart LR
 
 ## 致谢
 
-基于 [Physical Intelligence OpenPI](https://github.com/Physical-Intelligence/openpi) 和 [Hugging Face LeRobot](https://github.com/huggingface/lerobot)。感谢实验室同学搭建和维护 RealMan 真机、遥操作、数据采集及控制平台，并提供现场支持。
+基于 [Physical Intelligence OpenPI](https://github.com/Physical-Intelligence/openpi) 和 [Hugging Face LeRobot](https://github.com/huggingface/lerobot)。感谢实验室学长搭建和维护 RealMan 真机、遥操作、数据采集及控制平台。
