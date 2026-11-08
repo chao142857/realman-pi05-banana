@@ -1,73 +1,66 @@
-# realman-pi05-banana 🍌
+# π0.5 on RealMan: Banana Pick-and-Place 🍌
 
-**Fine-tuning π0.5 on 50 self-collected demonstrations for banana pick-and-place on a real RealMan robot.**
+**50 teleoperated demonstrations → π0.5 fine-tuning → real-robot deployment.**
+
+I fine-tuned the pretrained [π0.5 base](https://huggingface.co/lerobot/pi05_base) for a banana pick-and-place task and deployed it on a RealMan dual-arm laboratory platform. The right arm picks up an artificial banana, places it in a blue plate, releases it, and lifts clear.
+
+**Highlight: 9/10 successful onsite trials** with the Expert-only checkpoint on November 8, 2026.
 
 [中文说明](README.zh-CN.md) · [Experiment details](docs/experiment.md) · [Pipeline and interfaces](docs/reproduction.md)
 
 ## Demo
 
-![Expert-only banana pick-and-place demonstration, 4× playback](assets/expert_pick_place_4x.gif)
+![RealMan banana pick-and-place demo (4× playback)](assets/expert_pick_place_4x.gif)
 
-**[Watch / download the 2× MP4 video](assets/expert_pick_place_2x.mp4)**
+**[Watch the demo video (MP4)](assets/expert_pick_place_2x.mp4)** · GIF at 4× speed; MP4 at 2× speed.
 
-The supplied video is shown at **2×** speed and the GIF at **4×** speed. These playback speeds are not real-time robot speed or inference latency measurements.
+## Results
 
-## What worked
+| Fine-tuning | Selected checkpoint | Successful trials |
+|---|---:|---:|
+| **Expert-only** | **4,000 updates** | **9 / 10 (90%)** |
+| LoRA (r=16, α=16) | 2,500 updates | 0 / 8 |
 
-Using the right arm, pick up an artificial banana from the left, place it in a blue plate on the right, release it, and lift the gripper clear of the plate.
+These are onsite pilot-session results, not a controlled head-to-head benchmark: the executor was adjusted during testing and starting conditions were not identical across all trials. The full evaluation record is in the [experiment card](docs/experiment.md).
 
-| Fine-tuning method | Selected checkpoint | Onsite successes | Success fraction |
-|---|---:|---:|---:|
-| **Expert-only** | **step 4,000** | **9 / 10** | **90%** |
-| LoRA, r16 / alpha16 | step 2,500 | 0 / 8 | 0% |
+Small changes in banana position and renewed grasp attempts after object removal were also observed, motivating further robustness tests.
 
-These are **operator-reported pilot-session results from November 8, 2026**. The executor was debugged during the session; identical code versions and initial conditions across all attempts have not been established. They describe these checkpoints and this task, rather than a general comparison of fine-tuning methods.
-
-Expert-only is the current deployment candidate. Small banana-position changes and renewed grasp attempts after manual object removal were also observed. Those observations remain qualitative; the interrupted re-grasp was not evaluated to completion.
-
-## From demonstrations to the robot
+## From demonstrations to deployment
 
 ```mermaid
 flowchart LR
-    A[Human teleoperation] --> B[50 successful demonstrations]
-    B --> C[LeRobot conversion and episode split]
-    C --> D[TRAIN-only normalization]
-    D --> E[Independent Expert-only and LoRA fine-tuning]
-    E --> F[Strict offline loading and action-chunk checks]
-    F --> G[Live cameras and robot state]
-    G --> H[Right-arm execution]
-    H --> G
+    A[RealMan teleoperation] --> B[50 successful demonstrations]
+    B --> C[LeRobot conversion and data split]
+    C --> D[π0.5 fine-tuning]
+    D --> E[Offline validation]
+    E --> F[Camera + state inference]
+    F --> G[RealMan right-arm execution]
 ```
 
-| Component | This experiment |
+| Component | Setup |
 |---|---|
-| Robot | RealMan dual-arm lab platform; right arm actuated, left arm observed |
-| Policy | Pretrained [π0.5 base](https://huggingface.co/lerobot/pi05_base), fine-tuned for this task |
-| Policy observations | Three RGB views: overhead, left wrist, right wrist; 14D robot state; task instruction |
-| Actions | 14D absolute joint/gripper targets; right-arm slice used for execution |
-| Data | TRAIN 40 episodes / 4,672 frames; VAL 5 / 649; TEST 5 / 658 |
-| Training | Single AMD gfx1100 GPU, 47.98 GiB exposed VRAM; ROCm 7.2 |
-| Deployment | NVIDIA RTX 3060, 12 GB class |
+| Dataset | 50 demonstrations: 40 TRAIN / 5 VAL / 5 TEST |
+| Observations | 3 RGB cameras (overhead, left wrist, right wrist), 14D robot state, task instruction |
+| Actions | 14D joint/gripper targets; right arm executed on hardware |
+| Training | AMD gfx1100 GPU, ~48 GiB VRAM, ROCm 7.2 |
+| Deployment | NVIDIA RTX 3060, 12 GB |
 
-This is task-specific fine-tuning of a pretrained model. TRAIN-only statistics were used; TEST was not used to select the checkpoint.
+The model uses the existing lab teleoperation and robot-control infrastructure. Training normalization was computed from TRAIN only; checkpoint selection used VAL, not TEST.
 
 ## Repository contents
 
-- Demo video and GIF provided by the experiment author.
-- The [experiment card](docs/experiment.md), including training settings, inference measurements, and evaluation limitations.
-- The [pipeline and interface description](docs/reproduction.md).
-- A compact [pilot-results record](results/pilot_summary.json).
+- [Experiment card](docs/experiment.md): settings, measurements, observations, and evaluation protocol.
+- [Pipeline and interface notes](docs/reproduction.md): collection, conversion, model interface, and deployment checks.
+- [Pilot result summary](results/pilot_summary.json) and the demo media above.
 
-The initial public release is a **demo and experiment report**. Dataset files, model weights, the lab's LeRobot fork, and hardware-specific execution code remain outside this release.
+This public repository shares the **demo and experiment documentation**; raw demonstrations, task weights, and lab-specific control code are not included.
 
-## Next experiments
+## Next steps
 
-- Repeat evaluation with one frozen executor version and a documented starting pose.
-- Evaluate small position changes separately from the fixed-layout task.
-- Test recovery after object displacement with an explicit completion criterion.
-- Diagnose the current LoRA checkpoint's initial-action bias and action-chunk discontinuities offline.
-- Improve execution timing and task completion / stopping behavior.
+- Run repeatable evaluations with a fixed executor and documented starting conditions.
+- Measure performance under object-position changes and recovery scenarios.
+- Investigate LoRA's initial-action offsets and action-chunk discontinuities.
 
 ## Acknowledgements
 
-Built on [Physical Intelligence's OpenPI](https://github.com/Physical-Intelligence/openpi) and [Hugging Face LeRobot](https://github.com/huggingface/lerobot), using an existing laboratory RealMan and teleoperation platform. Thanks to the lab members who developed and helped operate the hardware, collection, and control infrastructure.
+Built on [Physical Intelligence's OpenPI](https://github.com/Physical-Intelligence/openpi) and [Hugging Face LeRobot](https://github.com/huggingface/lerobot). Thanks to the lab members who developed and supported the RealMan platform, teleoperation, data collection, and robot-control infrastructure.
