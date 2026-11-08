@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-08",
+  "task": "Right-arm artificial-banana pick-and-place into a blue plate, release, and lift clear",
+  "source": "onsite operator report",
+  "expert_only": {
+    "selected_step": 4000,
+    "successes": 9,
+    "attempts": 10,
+    "success_fraction": 0.9,
+    "selection": "VAL"
+  },
+  "lora": {
+    "selected_step": 2500,
+    "rank": 16,
+    "alpha": 16,
+    "successes": 0,
+    "attempts": 8,
+    "success_fraction": 0.0,
+    "selection": "VAL"
+  },
+  "dataset": {
+    "train": {
+      "episodes": 40,
+      "frames": 4672
+    },
+    "val": {
+      "episodes": 5,
+      "frames": 649
+    },
+    "test": {
+      "episodes": 5,
+      "frames": 658
+    },
+    "normalizer": "TRAIN only",
+    "test_used_for_selection": false
+  },
+  "evaluation_scope": "pilot session; uniform code version and initial conditions across all attempts not established",
+  "qualitative_observations": [
+    "Some small banana-position changes were handled",
+    "Renewed grasp attempts after manual object removal were observed; completion not established before time ran out"
+  ],
+  "generalization_success_rate": null,
+  "media_playback_speed": {
+    "mp4": 2,
+    "gif": 4
+  },
+  "hardware_specific_code_in_this_release": false
+}
